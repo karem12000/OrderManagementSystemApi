@@ -18,7 +18,7 @@ namespace OrderManagementSystem.BLL.Guide
         #region Get
         public ResultDto<GetProductDto> GetById(Guid id)
         {
-            var result = new ResultDto<GetProductDto>() { Message = AppConstants.ArMessages.ProductNotFound };
+            var result = new ResultDto<GetProductDto>() { Message = AppConstants.EnMessages.ProductNotFound };
 
             var product = repoProduct.GetAllAsNoTracking().Where(p => p.Id == id).Select(p => new GetProductDto()
             {
@@ -39,7 +39,7 @@ namespace OrderManagementSystem.BLL.Guide
         }
         public async Task<ResultDto<GetProductDto>> GetByIdAsync(Guid id)
         {
-            var result = new ResultDto<GetProductDto>() { Message = AppConstants.ArMessages.ProductNotFound };
+            var result = new ResultDto<GetProductDto>() { Message = AppConstants.EnMessages.ProductNotFound };
 
             var product = repoProduct.GetAll().Where(p => p.Id == id).Select(p => new GetProductDto()
             {
@@ -61,7 +61,7 @@ namespace OrderManagementSystem.BLL.Guide
         public async Task<PaginatedResponse<Product>> GetProducts(PaginatedDto data)
         {
             var query = repoProduct.GetAllAsNoTracking()
-                .Where(x => !x.IsDeleted)
+                .Where(x => !x.IsDeleted && !x.User.IsDeleted)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(data.Search))
@@ -69,7 +69,7 @@ namespace OrderManagementSystem.BLL.Guide
                 query = query.Where(p => p.Name.Contains(data.Search));
             }
 
-            if (data.OwnerId != null)
+            if (data.OwnerId != null && !data.isGetAll)
             {
                 query = query.Where(p => p.OwnerId == data.OwnerId);
             }
@@ -102,38 +102,19 @@ namespace OrderManagementSystem.BLL.Guide
         #endregion
         public ResultDto CreateProduct(CreateProductDto data)
         {
-            var result = new ResultDto() { Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto() { Message = AppConstants.EnMessages.SavedFailed };
             try
             {
 
                 result = isValid(data);
                 if (!result.Status) return result;
-                //if (data == null) return result;
-                //if (data.Name.IsEmpty())
-                //{
-                //    result.Message = AppConstants.ArMessages.NameRequired;
-                //    return result;
-                //}
-
-                //if (data.Price == null || data.Price == default(decimal) || data.Price < 0)
-                //{
-                //    result.Message = AppConstants.ArMessages.PriceRequired;
-                //    return result;
-                //}
-
-                //if (data.StockQuantity == null || data.StockQuantity == default(long) || data.StockQuantity < 0)
-                //{
-                //    result.Message = AppConstants.ArMessages.StockQntyRequired;
-                //    return result;
-                //}
-
 
                 var existProduct = repoProduct.GetAllAsNoTracking()
                     .FirstOrDefault(x => x.Name.Trim() == data.Name.Trim());
                 if (existProduct != null)
                 {
                     result.Status = false;
-                    result.Message = AppConstants.ArMessages.NameAlreadyExists;
+                    result.Message = AppConstants.EnMessages.NameAlreadyExists;
                     return result;
                 }
 
@@ -143,7 +124,7 @@ namespace OrderManagementSystem.BLL.Guide
                 if (repoProduct.Insert(newProduct))
                 {
                     result.Status = true;
-                    result.Message = AppConstants.ArMessages.SavedSuccess;
+                    result.Message = AppConstants.EnMessages.SavedSuccess;
                     return result;
                 }
 
@@ -156,37 +137,18 @@ namespace OrderManagementSystem.BLL.Guide
         }
         public ResultDto UpdateProduct(UpdateProductDto data)
         {
-            var result = new ResultDto() { Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto() { Message = AppConstants.EnMessages.SavedFailed };
             try
             {
 
                 result = isValid(data);
                 if (!result.Status) return result;
 
-
-                //if (data == null) return result;
-                //if (data.Id == Guid.Empty) return result;
-                //if (data.Name.IsEmpty())
-                //{
-                //    result.Message = AppConstants.ArMessages.NameRequired;
-                //    return result;
-                //}
-                //if (data.Price == null || data.Price == default(decimal) || data.Price < 0)
-                //{
-                //    result.Message = AppConstants.ArMessages.PriceRequired;
-                //    return result;
-                //}
-                //if (data.StockQuantity == null || data.StockQuantity == default(long) || data.StockQuantity < 0)
-                //{
-                //    result.Message = AppConstants.ArMessages.StockQntyRequired;
-                //    return result;
-                //}
-
                 var existProduct = repoProduct.GetAllAsNoTracking()
                     .FirstOrDefault(x => x.Name.Trim() == data.Name.Trim() && x.Id != data.Id);
                 if (existProduct != null)
                 {
-                    result.Message = AppConstants.ArMessages.NameAlreadyExists;
+                    result.Message = AppConstants.EnMessages.NameAlreadyExists;
                     return result;
                 }
 
@@ -202,7 +164,7 @@ namespace OrderManagementSystem.BLL.Guide
                 if (repoProduct.Update(oldProduct))
                 {
                     result.Status = true;
-                    result.Message = AppConstants.ArMessages.SavedSuccess;
+                    result.Message = AppConstants.EnMessages.SavedSuccess;
                     return result;
                 }
 
@@ -215,12 +177,10 @@ namespace OrderManagementSystem.BLL.Guide
         }
         public ResultDto Delete(Guid id)
         {
-            var result = new ResultDto() { Message = AppConstants.ArMessages.DeletedFailed };
+            var result = new ResultDto() { Message = AppConstants.EnMessages.DeletedFailed };
 
             var tbl = repoProduct.GetAll().Include(p => p.OrderItems).FirstOrDefault(p => p.Id == id);
             if (tbl == null) return result;
-
-            //if (tbl.OrderItems != null && tbl.OrderItems.Count > 0 && !tbl.OrderItems.FirstOrDefault().IsDeleted) return result;
 
             tbl.IsDeleted = true;
             tbl.DeletedBy = repoProduct.UserId;
@@ -229,9 +189,9 @@ namespace OrderManagementSystem.BLL.Guide
 
             result.Status = isSuceess;
             if (isSuceess)
-                result.Message = AppConstants.ArMessages.DeletedSuccess;
+                result.Message = AppConstants.EnMessages.DeletedSuccess;
             else
-                result.Message = AppConstants.ArMessages.DeletedFailed;
+                result.Message = AppConstants.EnMessages.DeletedFailed;
 
             return result;
         }
@@ -239,7 +199,7 @@ namespace OrderManagementSystem.BLL.Guide
         #region Helper
         private ResultDto isValid(object data)
         {
-            var result = new ResultDto { Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto { Message = AppConstants.EnMessages.SavedFailed };
             if (data == null) return result;
 
             Type type = data.GetType();
@@ -255,7 +215,7 @@ namespace OrderManagementSystem.BLL.Guide
                     {
                         if (property.Name == "Name")
                         {
-                            result.Message = $"{property.Name} {AppConstants.ArMessages.NameRequired}";
+                            result.Message = $"{property.Name} {AppConstants.EnMessages.NameRequired}";
                             return result;
                         }
                     }
@@ -267,7 +227,7 @@ namespace OrderManagementSystem.BLL.Guide
                     {
                         if (property.Name == "Id")
                         {
-                            result.Message = $"{property.Name} {AppConstants.ArMessages.SavedFailed}";
+                            result.Message = $"{property.Name} {AppConstants.EnMessages.SavedFailed}";
                             return result;
                         }
                     }
@@ -279,13 +239,13 @@ namespace OrderManagementSystem.BLL.Guide
                     {
                         if (property.Name == "Price")
                         {
-                            result.Message = $"{property.Name} {AppConstants.ArMessages.PriceRequired}";
+                            result.Message = $"{property.Name} {AppConstants.EnMessages.PriceRequired}";
                             return result;
                         }
 
                         if (property.Name == "StockQuantity")
                         {
-                            result.Message = $"{property.Name} {AppConstants.ArMessages.StockQntyRequired}";
+                            result.Message = $"{property.Name} {AppConstants.EnMessages.StockQntyRequired}";
                             return result;
                         }
                     }

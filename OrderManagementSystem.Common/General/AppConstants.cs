@@ -48,27 +48,36 @@
             public const string DeletedSuccess = "تم الحذف بنجاح";
             public const string DeletedFailed = "حدث خطا اثناء الحذف";
         }
-        public struct ArUserMessages
+
+        public struct EnMessages
         {
-
-            public const string UsernameAlreadyExists = "اسم المستخدم موجود من قبل";
-            public const string NewPasswordRequired = "من فضلك أدخل كلمة المرور الجديدة";
-            public const string OldPasswordRequired = "من فضلك أدخل كلمة المرور الحالية";
-            public const string EmailAlreadyExists = "البريد الالكتروني موجود من قبل";
-            public const string NewPasswordAndConfirmNotEqual = "تأكيد كلمة المرور غير مطابق لكلمة المرور الجديدة";
-
-
+            public const string StopTitle = "Stop";
+            public const string CurrentAndNewPasswordEqual = "The new password matches the current password";
+            public const string NewAndConfirmPassword = "The confirmation password does not match the new password";
+            public const string UserNotFound = "This user does not exist";
+            public const string PasswordRequired = "Password is required";
+            public const string InvalidEmail = "Please make sure the email is entered correctly";
+            public const string InvalidEmailOrPassword = "Incorrect email or password";
+            public const string requiredQtyNotEnough = "The requested quantity is not available";
+            public const string QtyMustGreateZero = "The quantity must be greater than 0";
+            public const string CustomerNotFound = "Customer not found";
+            public const string PlaceOrderFailed = "Order failed";
+            public const string PlaceOrderSuccess = "Order placed successfully! Please use your email to follow up the order";
+            public const string ProductNotFound = "This product does not exist";
+            public const string InvalidCurrentPassword = "The current password is incorrect";
+            public const string EmailRequired = "Email is required";
+            public const string SavedSuccess = "Saved successfully";
+            public const string SavedFailed = "An error occurred";
+            public const string PersonalDataRequired = "Please Enter all Personal data";
+            public const string NameAlreadyExists = "The name is already in use";
+            public const string NameRequired = "Please enter the name";
+            public const string PhoneRequired = "Please enter the phone number";
+            public const string PriceRequired = "Please enter the price";
+            public const string StockQntyRequired = "Please enter the quantity";
+            public const string EmailAlreadyExists = "The email is already in use";
+            public const string DeletedSuccess = "Deleted successfully";
+            public const string DeletedFailed = "An error occurred during deletion";
         }
-        public struct EnUserMessages
-        {
 
-            public const string UsernameAlreadyExists = "Username already exists";
-            public const string NewPasswordRequired = "Please enter your new password";
-            public const string OldPasswordRequired = "Please enter your current password";
-            public const string EmailAlreadyExists = "Email already exists";
-            public const string NewPasswordAndConfirmNotEqual = "Confirm password does not match new password";
-
-
-        }
     }
 }

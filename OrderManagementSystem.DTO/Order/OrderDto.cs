@@ -32,10 +32,10 @@ namespace OrderManagementSystem.DTO.Order
         public OrderStatusEnum Status { get; set; }
         public string StatusStr => Status switch
         {
-            OrderStatusEnum.Canceled => "تم رفض الطلب",
-            OrderStatusEnum.Pending => "في انتظار الموافقة",
-            OrderStatusEnum.Confirmed => "تم قبول الطلب",
-            _ => "غير محدد"
+            OrderStatusEnum.Canceled => "The order was canceled",
+            OrderStatusEnum.Pending => "Awaiting approval",
+            OrderStatusEnum.Confirmed => "Order accepted",
+            _ => "Not Specified"
         };
         public List<OrderListItemDto> Items { get; set; }
     }

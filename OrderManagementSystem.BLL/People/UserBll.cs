@@ -1,6 +1,5 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
-using OrderManagementSystem.BLL.Guide;
 using OrderManagementSystem.Common.General;
 using OrderManagementSystem.DAL.DesignPattern;
 using OrderManagementSystem.DTO;
@@ -44,7 +43,7 @@ namespace OrderManagementSystem.BLL.People
             responce.ResponseCode = HttpStatusCode.UnprocessableEntity;
             if (mdl.UserName.IsEmpty())
             {
-                responce.Messages = new List<string>() { AppConstants.ArMessages.EmailRequired };
+                responce.Messages = new List<string>() { AppConstants.EnMessages.EmailRequired };
                 return responce;
             }
             string userName = string.IsNullOrEmpty(mdl.UserName) ? mdl.UserName : mdl.UserName;
@@ -53,7 +52,7 @@ namespace OrderManagementSystem.BLL.People
 
             if (entity == null)
             {
-                responce.Messages.Add("بيانات غير صحيحه");
+                responce.Messages.Add("Incorrect data");
                 return responce;
             }
 
@@ -64,7 +63,8 @@ namespace OrderManagementSystem.BLL.People
                 Id = entity.Id,
                 Email = entity.Email,
                 IsActive = true,
-                Fullname = entity.FullName ?? entity.UserName
+                Fullname = entity.FullName ?? entity.UserName,
+                IsAdmin = entity.IsAdmin
             };
             return responce;
 
@@ -86,29 +86,29 @@ namespace OrderManagementSystem.BLL.People
         }
         public ResultDto SaveUser(UserDto userDTO)
         {
-            var result = new ResultDto() { Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto() { Message = AppConstants.EnMessages.SavedFailed };
 
 
             if (userDTO.FullName.IsEmpty())
             {
-                result.Message = AppConstants.ArMessages.NameRequired;
+                result.Message = AppConstants.EnMessages.NameRequired;
                 return result;
             }
 
             if (!userDTO.Email.IsValidEmail())
             {
-                result.Message = AppConstants.ArMessages.InvalidEmail;
+                result.Message = AppConstants.EnMessages.InvalidEmail;
                 return result;
             }
             if (string.IsNullOrEmpty(userDTO.Password))
             {
-                result.Message = AppConstants.ArMessages.PasswordRequired;
+                result.Message = AppConstants.EnMessages.PasswordRequired;
                 return result;
             }
             var existEmail = repoUser.GetAllAsNoTracking().FirstOrDefault(x => x.Email.Trim() == userDTO.Email.Trim());
             if (existEmail != null)
             {
-                result.Message = AppConstants.ArMessages.EmailAlreadyExists;
+                result.Message = AppConstants.EnMessages.EmailAlreadyExists;
                 return result;
             }
 
@@ -122,7 +122,7 @@ namespace OrderManagementSystem.BLL.People
             {
 
                 result.Status = true;
-                result.Message = AppConstants.ArMessages.SavedSuccess;
+                result.Message = AppConstants.EnMessages.SavedSuccess;
 
             }
 
@@ -131,7 +131,7 @@ namespace OrderManagementSystem.BLL.People
 
         public ResultDto EditUser(EditUserDto userDTO)
         {
-            var result = new ResultDto() { Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto() { Message = AppConstants.EnMessages.SavedFailed };
 
             if (userDTO.Id == Guid.Empty)
             {
@@ -140,24 +140,24 @@ namespace OrderManagementSystem.BLL.People
 
             if (userDTO.FullName.IsEmpty())
             {
-                result.Message = AppConstants.ArMessages.NameRequired;
+                result.Message = AppConstants.EnMessages.NameRequired;
                 return result;
             }
 
             if (!userDTO.Email.IsValidEmail())
             {
-                result.Message = AppConstants.ArMessages.InvalidEmail;
+                result.Message = AppConstants.EnMessages.InvalidEmail;
                 return result;
             }
             if (string.IsNullOrEmpty(userDTO.Password))
             {
-                result.Message = AppConstants.ArMessages.PasswordRequired;
+                result.Message = AppConstants.EnMessages.PasswordRequired;
                 return result;
             }
             var existEmail = repoUser.GetAllAsNoTracking().FirstOrDefault(x => x.Email.Trim() == userDTO.Email.Trim() && x.Id != userDTO.Id);
             if (existEmail != null)
             {
-                result.Message = AppConstants.ArMessages.EmailAlreadyExists;
+                result.Message = AppConstants.EnMessages.EmailAlreadyExists;
                 return result;
             }
 
@@ -171,7 +171,7 @@ namespace OrderManagementSystem.BLL.People
             if (repoUser.Update(oldUser))
             {
                 result.Status = true;
-                result.Message = AppConstants.ArMessages.SavedSuccess;
+                result.Message = AppConstants.EnMessages.SavedSuccess;
             }
 
             return result;
@@ -186,13 +186,13 @@ namespace OrderManagementSystem.BLL.People
                 var hashPass = para.CurrentPassword.EncryptString();
                 if (para.NewPassword != para.ConfirmNewPassword)
                 {
-                    result.Message = AppConstants.ArMessages.NewAndConfirmPassword;
+                    result.Message = AppConstants.EnMessages.NewAndConfirmPassword;
                     return result;
                 }
 
                 if (para.NewPassword == para.CurrentPassword)
                 {
-                    result.Message = AppConstants.ArMessages.CurrentAndNewPasswordEqual;
+                    result.Message = AppConstants.EnMessages.CurrentAndNewPasswordEqual;
                     return result;
                 }
                 if (hashPass == data.PasswordHash)
@@ -204,13 +204,13 @@ namespace OrderManagementSystem.BLL.People
                         if (repoUser.Update(data))
                         {
                             result.Status = true;
-                            result.Message = AppConstants.ArMessages.SavedSuccess;
+                            result.Message = AppConstants.EnMessages.SavedSuccess;
                         }
                     }
                 }
                 else
                 {
-                    result.Message = AppConstants.ArMessages.InvalidCurrentPassword;
+                    result.Message = AppConstants.EnMessages.InvalidCurrentPassword;
                     return result;
                 }
 
@@ -221,7 +221,7 @@ namespace OrderManagementSystem.BLL.People
 
         public ResultDto<UserDto> GetById(Guid id)
         {
-            var result = new ResultDto<UserDto>() { Message = AppConstants.ArMessages.UserNotFound };
+            var result = new ResultDto<UserDto>() { Message = AppConstants.EnMessages.UserNotFound };
 
             var user = repoUser.GetAllAsNoTracking().Where(p => p.Id == id).Select(p => new UserDto()
             {

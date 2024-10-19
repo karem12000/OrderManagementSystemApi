@@ -1,6 +1,5 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
-using OrderManagementSystem.BLL.Guide;
 using OrderManagementSystem.Common.General;
 using OrderManagementSystem.DAL.DesignPattern;
 using OrderManagementSystem.DTO;
@@ -68,26 +67,26 @@ namespace OrderManagementSystem.BLL.People
         }
         public ResultDto CreateCustomer(CreateCustomerDto data)
         {
-            var result = new ResultDto() { Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto() { Message = AppConstants.EnMessages.SavedFailed };
             try
             {
 
                 var emailValid = data.Email.IsValidEmail();
                 if (!emailValid)
                 {
-                    result.Message = AppConstants.ArMessages.InvalidEmail;
+                    result.Message = AppConstants.EnMessages.InvalidEmail;
                     return result;
                 }
 
                 if (data.Name.IsEmpty())
                 {
-                    result.Message = AppConstants.ArMessages.NameRequired;
+                    result.Message = AppConstants.EnMessages.NameRequired;
                     return result;
                 }
 
                 if (data.Phone.IsEmpty())
                 {
-                    result.Message = AppConstants.ArMessages.PhoneRequired;
+                    result.Message = AppConstants.EnMessages.PhoneRequired;
                     return result;
                 }
 
@@ -96,7 +95,7 @@ namespace OrderManagementSystem.BLL.People
                 if (existCustomer != null)
                 {
                     result.Status = false;
-                    result.Message = AppConstants.ArMessages.EmailAlreadyExists;
+                    result.Message = AppConstants.EnMessages.EmailAlreadyExists;
                     return result;
                 }
 
@@ -106,7 +105,7 @@ namespace OrderManagementSystem.BLL.People
                 if (repoCustomer.Insert(newCustomer))
                 {
                     result.Status = true;
-                    result.Message = AppConstants.ArMessages.SavedSuccess;
+                    result.Message = AppConstants.EnMessages.SavedSuccess;
                     result.Data = newCustomer.Id;
                     return result;
                 }
@@ -121,7 +120,7 @@ namespace OrderManagementSystem.BLL.People
 
         public ResultDto UpdateCustomer(UpdateCustomerDto data)
         {
-            var result = new ResultDto() { Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto() { Message = AppConstants.EnMessages.SavedFailed };
             try
             {
                 if (data.Id == Guid.Empty) return result;
@@ -129,19 +128,19 @@ namespace OrderManagementSystem.BLL.People
                 var emailValid = data.Email.IsValidEmail();
                 if (!emailValid)
                 {
-                    result.Message = AppConstants.ArMessages.InvalidEmail;
+                    result.Message = AppConstants.EnMessages.InvalidEmail;
                     return result;
                 }
 
                 if (data.Name.IsEmpty())
                 {
-                    result.Message = AppConstants.ArMessages.NameRequired;
+                    result.Message = AppConstants.EnMessages.NameRequired;
                     return result;
                 }
 
                 if (data.Phone.IsEmpty())
                 {
-                    result.Message = AppConstants.ArMessages.PhoneRequired;
+                    result.Message = AppConstants.EnMessages.PhoneRequired;
                     return result;
                 }
                 var oldCustomer = repoCustomer.GetAll().FirstOrDefault(x => x.Id == data.Id);
@@ -153,7 +152,7 @@ namespace OrderManagementSystem.BLL.People
                 if (existProduct != null)
                 {
                     result.Status = false;
-                    result.Message = AppConstants.ArMessages.EmailAlreadyExists;
+                    result.Message = AppConstants.EnMessages.EmailAlreadyExists;
                     return result;
                 }
 
@@ -169,7 +168,7 @@ namespace OrderManagementSystem.BLL.People
                 if (repoCustomer.Update(oldCustomer))
                 {
                     result.Status = true;
-                    result.Message = AppConstants.ArMessages.SavedSuccess;
+                    result.Message = AppConstants.EnMessages.SavedSuccess;
                     return result;
                 }
 
@@ -183,7 +182,7 @@ namespace OrderManagementSystem.BLL.People
 
         public ResultDto Delete(Guid id)
         {
-            var result = new ResultDto() { Message = AppConstants.ArMessages.DeletedFailed };
+            var result = new ResultDto() { Message = AppConstants.EnMessages.DeletedFailed };
 
             var tbl = repoCustomer.GetAll().FirstOrDefault(p => p.Id == id);
             if (tbl == null) return result;
@@ -195,9 +194,9 @@ namespace OrderManagementSystem.BLL.People
 
             result.Status = isSuceess;
             if (isSuceess)
-                result.Message = AppConstants.ArMessages.DeletedSuccess;
+                result.Message = AppConstants.EnMessages.DeletedSuccess;
             else
-                result.Message = AppConstants.ArMessages.DeletedFailed;
+                result.Message = AppConstants.EnMessages.DeletedFailed;
 
             return result;
         }

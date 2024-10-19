@@ -21,12 +21,22 @@ namespace OrderManagementSystem.BLL.Order
     {
         public async Task<ResultDto> PlaceOrderAsync(CreateOrderDto createOrderDto)
         {
-            var result = new ResultDto() { Status = false, Message = AppConstants.ArMessages.PlaceOrderFailed };
+            var result = new ResultDto() { Status = false, Message = AppConstants.EnMessages.PlaceOrderFailed };
             var customerId = Guid.Empty;
             var customerExists = repoUser.GetAllAsNoTracking()
-                .FirstOrDefault(u => u.Email.Trim() == createOrderDto.CustomerInfo.Email.Trim());
+                .FirstOrDefault(u => u.Email.ToLower().Trim() == createOrderDto.CustomerInfo.Email.ToLower().Trim());
             if (customerExists == null)
             {
+                //if (createOrderDto.CustomerInfo.Name.IsEmpty() ||
+                //    createOrderDto.CustomerInfo.Email.IsEmpty() ||
+                //    createOrderDto.CustomerInfo.DateOfBirth == null ||
+                //    createOrderDto.CustomerInfo.Address.IsEmpty() ||
+                //    createOrderDto.CustomerInfo.Phone.IsEmpty())
+                //{
+                //    result.Message = AppConstants.EnMessages.PersonalDataRequired;
+                //    return result;
+                //}
+
                 var createCustomer = customerBll.CreateCustomer(new CreateCustomerDto()
                 {
                     Address = createOrderDto.CustomerInfo.Address,
@@ -57,19 +67,19 @@ namespace OrderManagementSystem.BLL.Order
                 var product = (await repoProduct.GetAllAsync()).FirstOrDefault(x => x.Id == itemDto.ProductId);
                 if (product == null)
                 {
-                    result.Message = AppConstants.ArMessages.ProductNotFound;
+                    result.Message = AppConstants.EnMessages.ProductNotFound;
                     return result;
                 }
 
                 if (itemDto.Quantity <= 0)
                 {
-                    result.Message = AppConstants.ArMessages.QtyMustGreateZero;
+                    result.Message = AppConstants.EnMessages.QtyMustGreateZero;
                     return result;
                 }
 
                 if (product.StockQuantity < itemDto.Quantity)
                 {
-                    result.Message = AppConstants.ArMessages.requiredQtyNotEnough;
+                    result.Message = AppConstants.EnMessages.requiredQtyNotEnough;
                     return result;
                 }
 
@@ -91,7 +101,7 @@ namespace OrderManagementSystem.BLL.Order
             {
                 repoProduct.SaveChange();
                 result.Status = true;
-                result.Message = AppConstants.ArMessages.PlaceOrderSuccess;
+                result.Message = AppConstants.EnMessages.PlaceOrderSuccess;
                 return result;
             }
             return result;
@@ -117,7 +127,7 @@ namespace OrderManagementSystem.BLL.Order
                     Address = x.Customer.Address,
                     TotalAmount = x.TotalAmount,
                     Status = x.Status,
-                    ChangeStatusDate = x.ChangeStatusDate == null ? "غير محدد" : x.ChangeStatusDate.Value.ToString("yyyy-MM-dd"),
+                    ChangeStatusDate = x.ChangeStatusDate == null ? "Not specified" : x.ChangeStatusDate.Value.ToString("yyyy-MM-dd"),
                     Items = x.OrderItems.Select(oi => new OrderListItemDto
                     {
                         ProductName = oi.Product.Name,
@@ -132,7 +142,7 @@ namespace OrderManagementSystem.BLL.Order
 
         public async Task<ResultDto> AcceptOrder(Guid orderId)
         {
-            var result = new ResultDto() { Status = false, Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto() { Status = false, Message = AppConstants.EnMessages.SavedFailed };
             if (orderId == Guid.Empty) return result;
 
             var orderData = (await repoOrder.GetAllAsync())
@@ -145,7 +155,7 @@ namespace OrderManagementSystem.BLL.Order
             if (await repoOrder.UpdateAsync(orderData))
             {
                 result.Status = true;
-                result.Message = AppConstants.ArMessages.SavedSuccess;
+                result.Message = AppConstants.EnMessages.SavedSuccess;
                 return result;
             }
             return result;
@@ -153,7 +163,7 @@ namespace OrderManagementSystem.BLL.Order
 
         public async Task<ResultDto> CancelOrder(Guid orderId)
         {
-            var result = new ResultDto() { Status = false, Message = AppConstants.ArMessages.SavedFailed };
+            var result = new ResultDto() { Status = false, Message = AppConstants.EnMessages.SavedFailed };
             if (orderId == Guid.Empty) return result;
 
             var orderData = (await repoOrder.GetAllAsync()).Where(x => x.Id == orderId)
@@ -186,7 +196,7 @@ namespace OrderManagementSystem.BLL.Order
             {
                 repoProduct.SaveChange();
                 result.Status = true;
-                result.Message = AppConstants.ArMessages.SavedSuccess;
+                result.Message = AppConstants.EnMessages.SavedSuccess;
                 return result;
             }
             return result;
@@ -198,7 +208,7 @@ namespace OrderManagementSystem.BLL.Order
             var orders = await repoOrder.GetAllAsNoTracking()
                 .Include(x => x.OrderItems)
                 .ThenInclude(x => x.Product)
-                .Where(x => !x.IsDeleted && x.Customer.Email == email)
+                .Where(x => !x.IsDeleted && !x.Customer.IsDeleted && x.Customer.Email == email)
                 .OrderByDescending(x => x.CreatedDate)
                 .Select(x => new OrderListDto()
                 {
@@ -210,7 +220,7 @@ namespace OrderManagementSystem.BLL.Order
                     Address = x.Customer.Address,
                     TotalAmount = x.TotalAmount,
                     Status = x.Status,
-                    ChangeStatusDate = x.ChangeStatusDate == null ? "غير محدد" : x.ChangeStatusDate.Value.ToString("yyyy-MM-dd"),
+                    ChangeStatusDate = x.ChangeStatusDate == null ? "Not specified" : x.ChangeStatusDate.Value.ToString("yyyy-MM-dd"),
                     Items = x.OrderItems.Select(oi => new OrderListItemDto
                     {
                         ProductName = oi.Product.Name,
@@ -230,7 +240,6 @@ namespace OrderManagementSystem.BLL.Order
                 .ThenInclude(oi => oi.Product)
                 .ToListAsync();
 
-            // Optionally, you can throw an exception or return a specific message if no orders are found
             if (orders == null || !orders.Any())
             {
                 return new List<Tables.Order.Order>();

@@ -28,7 +28,7 @@ namespace OrderManagementSystem.DTO
 
         public string Fullname { get; set; } = "";
 
-
+        public bool IsAdmin { get; set; }
         public Guid? Id { get; set; }
 
         public bool IsActive { get; set; }
